@@ -2,10 +2,9 @@
 import inquirer from "inquirer";
 import * as fs from "fs";
 import cheerio from "cheerio";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
+// import { dirname } from "path";
+// import { fileURLToPath } from "url";
 const CURR_DIR = process.cwd();
-const __dirname = dirname(fileURLToPath(import.meta.url));
 const QUESTIONS = [
     {
         name: "webflow-folder-path",
@@ -87,21 +86,35 @@ const transformComponent = (divNameInHtmlToConvertToReactComponent, interfaceFor
         arr[0] = toReplace;
     }
     const reactComponentString = arr[0];
-    const nameOfNewReactComponentName = divNameInHtmlToConvertToReactComponent;
+    const nameOfNewReactComponent = divNameInHtmlToConvertToReactComponent;
+    const nameOfNewReactComponentController = `${nameOfNewReactComponent}Controller`;
     const folderWhereNewReactComponentWillBePlaced = `${CURR_DIR}/${divNameInHtmlToConvertToReactComponent}`;
-    const reactComponentFile = `${folderWhereNewReactComponentWillBePlaced}/index.tsx`;
+    const reactComponentFile = `${folderWhereNewReactComponentWillBePlaced}/${nameOfNewReactComponent}.tsx`;
+    const reactComponentControllerFile = `${folderWhereNewReactComponentWillBePlaced}/index.tsx`;
+    let componentPropsArray = [];
+    for (let i = 0; i < arrayProps.length; i++) {
+        const element = arrayProps[i];
+        const prop = `${element}={${element}}`;
+        componentPropsArray.push(prop);
+    }
+    const componentPropsString = componentPropsArray
+        .toString()
+        .replace(/,/gm, " ");
     if (!fs.existsSync(folderWhereNewReactComponentWillBePlaced)) {
         fs.mkdirSync(folderWhereNewReactComponentWillBePlaced);
     }
-    fs.writeFileSync(reactComponentFile, createReactComponent(nameOfNewReactComponentName, reactComponentString, arrayProps));
+    fs.writeFileSync(reactComponentFile, createReactComponent(nameOfNewReactComponent, reactComponentString, arrayProps));
+    if (!fs.existsSync(reactComponentControllerFile)) {
+        fs.writeFileSync(reactComponentControllerFile, createReactComponentController(nameOfNewReactComponent, nameOfNewReactComponentController, componentPropsString, arrayProps));
+    }
 };
-const createReactComponent = (nameOfNewReactComponentName, reactComponentString, props) => `
+const createReactComponent = (nameOfNewReactComponent, reactComponentString, props) => `
 // THIS IS A GENERATED FILE, do not modify.
 
 import { FunctionComponent } from 'react';
-import IProps from '../interfaces/${nameOfNewReactComponentName}';
+import IProps from '../interfaces/${nameOfNewReactComponent}';
 
-const ${nameOfNewReactComponentName}: FunctionComponent<IProps> = (props) => {
+const ${nameOfNewReactComponent}: FunctionComponent<IProps> = (props) => {
   const {${props}} = props;
   const {children} = props;
 
@@ -112,6 +125,18 @@ const ${nameOfNewReactComponentName}: FunctionComponent<IProps> = (props) => {
   )
 }
 
-export default ${nameOfNewReactComponentName};
+export default ${nameOfNewReactComponent};
+`;
+const createReactComponentController = (nameOfNewReactComponent, nameOfNewReactComponentController, componentPropsString, props) => `
+import ${nameOfNewReactComponent} from "./${nameOfNewReactComponent}";
+import IProps from "../interfaces/${nameOfNewReactComponent}";
+
+const ${nameOfNewReactComponentController} = (props: IProps) => {
+  const {${props}} = props;
+
+  return <${nameOfNewReactComponent} ${componentPropsString} />;
+};
+
+export default ${nameOfNewReactComponentController};
 `;
 //# sourceMappingURL=index.js.map

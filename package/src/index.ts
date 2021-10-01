@@ -2,12 +2,12 @@
 import inquirer from "inquirer";
 import * as fs from "fs";
 import cheerio from "cheerio";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
+// import { dirname } from "path";
+// import { fileURLToPath } from "url";
 
 const CURR_DIR = process.cwd();
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+// const __dirname = dirname(fileURLToPath(import.meta.url));
 
 interface IQUESTIONS {
   [k: string]: any;
@@ -125,10 +125,24 @@ const transformComponent = (
 
   const reactComponentString = arr[0];
 
-  const nameOfNewReactComponentName = divNameInHtmlToConvertToReactComponent;
+  const nameOfNewReactComponent = divNameInHtmlToConvertToReactComponent;
+  const nameOfNewReactComponentController = `${nameOfNewReactComponent}Controller`;
 
   const folderWhereNewReactComponentWillBePlaced = `${CURR_DIR}/${divNameInHtmlToConvertToReactComponent}`;
-  const reactComponentFile = `${folderWhereNewReactComponentWillBePlaced}/index.tsx`;
+  const reactComponentFile = `${folderWhereNewReactComponentWillBePlaced}/${nameOfNewReactComponent}.tsx`;
+  const reactComponentControllerFile = `${folderWhereNewReactComponentWillBePlaced}/index.tsx`;
+
+  let componentPropsArray: string[] = [];
+
+  for (let i = 0; i < arrayProps.length; i++) {
+    const element = arrayProps[i];
+    const prop = `${element}={${element}}`;
+    componentPropsArray.push(prop);
+  }
+
+  const componentPropsString = componentPropsArray
+    .toString()
+    .replace(/,/gm, " ");
 
   if (!fs.existsSync(folderWhereNewReactComponentWillBePlaced)) {
     fs.mkdirSync(folderWhereNewReactComponentWillBePlaced);
@@ -137,24 +151,36 @@ const transformComponent = (
   fs.writeFileSync(
     reactComponentFile,
     createReactComponent(
-      nameOfNewReactComponentName,
+      nameOfNewReactComponent,
       reactComponentString,
       arrayProps
     )
   );
+
+  if (!fs.existsSync(reactComponentControllerFile)) {
+    fs.writeFileSync(
+      reactComponentControllerFile,
+      createReactComponentController(
+        nameOfNewReactComponent,
+        nameOfNewReactComponentController,
+        componentPropsString,
+        arrayProps
+      )
+    );
+  }
 };
 
 const createReactComponent = (
-  nameOfNewReactComponentName: string,
+  nameOfNewReactComponent: string,
   reactComponentString: string,
   props: string[]
 ) => `
 // THIS IS A GENERATED FILE, do not modify.
 
 import { FunctionComponent } from 'react';
-import IProps from '../interfaces/${nameOfNewReactComponentName}';
+import IProps from '../interfaces/${nameOfNewReactComponent}';
 
-const ${nameOfNewReactComponentName}: FunctionComponent<IProps> = (props) => {
+const ${nameOfNewReactComponent}: FunctionComponent<IProps> = (props) => {
   const {${props}} = props;
   const {children} = props;
 
@@ -165,5 +191,23 @@ const ${nameOfNewReactComponentName}: FunctionComponent<IProps> = (props) => {
   )
 }
 
-export default ${nameOfNewReactComponentName};
+export default ${nameOfNewReactComponent};
+`;
+
+const createReactComponentController = (
+  nameOfNewReactComponent: string,
+  nameOfNewReactComponentController: string,
+  componentPropsString: string,
+  props: string[]
+) => `
+import ${nameOfNewReactComponent} from "./${nameOfNewReactComponent}";
+import IProps from "../interfaces/${nameOfNewReactComponent}";
+
+const ${nameOfNewReactComponentController} = (props: IProps) => {
+  const {${props}} = props;
+
+  return <${nameOfNewReactComponent} ${componentPropsString} />;
+};
+
+export default ${nameOfNewReactComponentController};
 `;
