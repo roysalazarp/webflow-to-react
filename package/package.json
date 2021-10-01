@@ -1,0 +1,46 @@
+{
+  "name": "webflow-to-react",
+  "version": "1.0.0",
+  "description": "Helps convert webflow exported code to react components with typescript",
+  "main": "lib/index.js",
+  "types": "lib",
+  "type": "module",
+  "bin": {
+    "webflow-to-react": "lib/index.js"
+  },
+  "scripts": {
+    "watch": "tsc -w",
+    "dev": "NODE_ENV=development nodemon -L src/index.ts",
+    "build": "tsc -p .",
+    "start": "NODE_ENV=production node lib/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roysalazarp/webflow-to-react.git"
+  },
+  "keywords": [
+    "webflow",
+    "react",
+    "typescript"
+  ],
+  "author": "Roy Salazar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/roysalazarp/webflow-to-react/issues"
+  },
+  "homepage": "https://github.com/roysalazarp/webflow-to-react#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.15.7",
+    "@babel/core": "^7.15.5",
+    "@babel/node": "^7.15.4",
+    "@types/inquirer": "^8.1.3",
+    "@types/node": "^16.10.2",
+    "nodemon": "^2.0.13",
+    "typescript": "^4.4.3"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.10",
+    "inquirer": "^8.1.5",
+    "overwrite": "^1.0.3"
+  }
+}
