@@ -33,6 +33,7 @@
     "@babel/cli": "^7.15.7",
     "@babel/core": "^7.15.5",
     "@babel/node": "^7.15.4",
+    "@types/find-config": "^1.0.1",
     "@types/inquirer": "^8.1.3",
     "@types/node": "^16.10.2",
     "nodemon": "^2.0.13",
@@ -40,6 +41,7 @@
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.10",
+    "find-config": "^1.0.0",
     "inquirer": "^8.1.5",
     "overwrite": "^1.0.3"
   }
